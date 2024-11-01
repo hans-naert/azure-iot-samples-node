@@ -3,7 +3,7 @@
 */
 'use strict';
 
-const Bme280Sensor = require('./bme280Sensor.js');
+//const Bme280Sensor = require('./bme280Sensor.js');
 const SimulatedSensor = require('./simulatedSensor.js');
 
 function MessageProcessor(option) {

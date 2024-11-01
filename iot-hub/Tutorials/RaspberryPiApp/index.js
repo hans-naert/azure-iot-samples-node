@@ -7,8 +7,9 @@
 
 const fs = require('fs');
 const path = require('path');
+const util = require('node:util');
 
-const gpio = require('onoff').Gpio;
+//const gpio = require('onoff').Gpio;
 
 const Client = require('azure-iot-device').Client;
 const ConnectionString = require('azure-iot-device').ConnectionString;
@@ -25,7 +26,9 @@ var messageId = 0;
 var client, config, messageProcessor;
 
 function sendMessage() {
-  if (!isMessageSendOn) { return; }
+  if (!isMessageSendOn) {
+   setTimeout(sendMessage, config.interval); 
+   return; }
 
   messageId++;
 
@@ -53,7 +56,7 @@ function sendMessage() {
 }
 
 function onStart(request, response) {
-  console.log('[Device] Trying to invoke method start(' + request.payload || '' + ')');
+  console.log('[Device] Trying to invoke method start(' + request.payload + ')');
 
   isMessageSendOn = true;
 
@@ -65,7 +68,7 @@ function onStart(request, response) {
 }
 
 function onStop(request, response) {
-  console.log('[Device] Trying to invoke method stop(' + request.payload || '' + ')');
+  console.log('[Device] Trying to invoke method stop(' + request.payload + ')');
 
   isMessageSendOn = false;
 
@@ -87,10 +90,10 @@ function receiveMessageCallback(msg) {
 }
 function blinkLED() {
   // Light up LED for 500 ms
-    const led = new gpio(config.LEDPinGPIO, 'out');
-    led.writeSync(1);
+    //const led = new gpio(config.LEDPinGPIO, 'out');
+    //led.writeSync(1);
     setTimeout(function () {
-        led.writeSync(0);
+        //led.writeSync(0);
       }, 500);
     }
 
@@ -201,6 +204,15 @@ function initClient(connectionStringParam, credentialPath) {
           console.error('[IoT Hub Client] Got twin message error:\n\t' + err.message);
           return;
         }
+        /*var seen = [];
+        var twin_string = JSON.stringify(twin, function(_, value) {
+          if (typeof value === 'object' && value !== null) {
+            if (seen.indexOf(value) !== -1) return;
+            else seen.push(value);
+          }
+          return value;
+        });*/
+        console.log("[TWIN]:"+util.inspect(twin));
         config.interval = twin.properties.desired.interval || config.interval;
       });
     }, config.interval);
